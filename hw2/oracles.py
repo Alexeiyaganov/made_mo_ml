@@ -50,6 +50,7 @@ class QuadraticOracle(BaseSmoothOracle):
 
     def grad(self, x):
         return (self.A + self.A.T) @ x / 2. - self.b
+        # return self.A.dot(x) - self.b
 
 
 class LogRegL2Oracle(BaseSmoothOracle):
@@ -77,10 +78,13 @@ class LogRegL2Oracle(BaseSmoothOracle):
         self.regcoef = regcoef
 
     def func(self, x):
-        return -(np.log(expit(self.b @ self.matvec_Ax(x)))).mean() + self.regcoef / 2. * x * x
+        return np.mean(np.log(1 + np.exp(-self.b * self.matvec_Ax(x)))) + (self.regcoef / 2) * np.linalg.norm(x) ** 2
 
     def grad(self, x):
-        return - self.matvec_ATx(self.b * expit(- self.b @ self.matvec_Ax(x))) / self.b.size + self.regcoef * x
+        b_ax = self.b * self.matvec_Ax(x)
+        logreg_grad = np.array(self.matvec_ATx(- np.exp(-b_ax) / (1 + np.exp(-b_ax)) * self.b)) / len(
+            self.b) + self.regcoef * x
+        return logreg_grad
 
 
 def create_log_reg_oracle(A, b, regcoef):
