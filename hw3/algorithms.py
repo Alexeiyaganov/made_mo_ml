@@ -77,9 +77,11 @@ def FISTA(filename, x_init, A, y, L,
     its = np.array([0])
     tim = np.array([0.0])
     data_passes = np.array([0.0])
+    x = np.array(x_init)
+    xk, yk = x, x
     func_val = np.array([F(xk, [A, y, mu, sparse, l1])-f_star])
-    sq_distances = np.array([norm(xk - ref_point) ** 2])
-    
+    sq_distances = np.array([norm(x_init - ref_point) ** 2])
+    k = L/mu
     t_start = time.time()
     num_of_data_passes = 0.0
     #метод
@@ -114,7 +116,6 @@ def FISTA(filename, x_init, A, y, L,
     with open("dump/"+filename+"_FISTA_l2_"+str(mu)+"_l1_"+str(l1)+"_num_of_epochs_"+str(S)+".txt", 'wb') as file:
         pickle.dump(res, file)
     return res
-
 
 def prox_gd(filename, x_init, A, y, gamma, 
          l2=0, sparse=True, l1=0, S=1000, max_t=np.inf,
@@ -249,6 +250,7 @@ def sgd_decr_stepsize(filename, x_init, A, y, gamma_schedule,
            'squared_distances':sq_distances}
     
     with open("dump/"+filename+"_SGD_decr_stepsize_gamma_"+str(gamma_schedule[0])+"_decr_period_"
+#     with open("dump/"+filename+"_SGD_gamma_"+str(gamma_schedule[0])+"_decr_period_" # too long names
               +str(decr_period)+"_decr_coeff_"+str(decr_coeff)+"_l2_"+str(l2)+"_l1_"+str(l1)+"_num_of_epochs_"+str(S)
               +"_batch_size_"+str(batch_size)+".txt", 'wb') as file:
         pickle.dump(res, file)
